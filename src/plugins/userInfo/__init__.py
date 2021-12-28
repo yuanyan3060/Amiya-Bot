@@ -1,0 +1,1 @@
+from .userInfo import info_cmd
