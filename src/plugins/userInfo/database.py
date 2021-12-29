@@ -1,6 +1,6 @@
 import peewee
 from src.config import pathConfig
-from typing import List, Dict
+from typing import List, Dict, Set
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
@@ -21,7 +21,7 @@ class User(peewee.Model):
     gacha_pool = peewee.IntegerField(default=1)
     sign_in = peewee.IntegerField(default=0)
     sign_times = peewee.IntegerField(default=0)
-    black = peewee.IntegerField(default=0)
+    black = peewee.BooleanField(default=False)
     waiting = peewee.TextField(null=True)
 
     class Meta:
@@ -29,3 +29,27 @@ class User(peewee.Model):
 
 
 User.create_table()
+
+
+class BlackManager:
+    _black_set: Set[int]
+
+    def __init__(self):
+        self._black_set = set()
+        for i in User.select():
+            if i.black:
+                self._black_set.add(i.user_id)
+
+    def is_black(self, user_id: int):
+        return user_id in self._black_set
+
+    def set_black(self, user_id: int):
+        User.replace(user_id=user_id, black=True).execute()
+        self._black_set.add(user_id)
+
+    def set_white(self, user_id: int):
+        User.replace(user_id=user_id, black=False).execute()
+        self._black_set.remove(user_id)
+
+
+blackManager = BlackManager()

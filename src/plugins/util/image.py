@@ -1,7 +1,13 @@
+import pathlib
+
+import aiofiles
 from PIL import Image, ImageDraw, ImageFont
 import re
 from src.config import pathConfig
 from io import BytesIO
+from dataclasses import dataclass
+from typing import Tuple, Optional, List
+
 line_height = 16
 side_padding = 10
 
@@ -79,7 +85,14 @@ class TextParser:
         return res_list
 
 
-def create_image(text: str, images=None, font_size=15)->bytes:
+@dataclass
+class ImgInfo:
+    size: int
+    path: pathlib.Path
+    pos: Tuple[int, int]
+
+
+def create_image(text: str, images: Optional[List[ImgInfo]] = None, font_size=15) -> bytes:
     text = TextParser(text, font_size=font_size)
 
     height = text.line + 2
@@ -102,12 +115,12 @@ def create_image(text: str, images=None, font_size=15)->bytes:
 
     if images:
         for item in images:
-            if item['path'].exists() is False:
+            if item.path.exists() is False:
                 continue
-            img = Image.open(item['path']).convert('RGBA')
+            img = Image.open(item.path).convert('RGBA')
 
-            pos = list(item['pos'])
-            height = item['size']
+            pos = list(item.pos)
+            height = item.size
             width = int(height * (img.width / img.height))
             offset = (height - width) / 2
             if offset:
@@ -118,3 +131,15 @@ def create_image(text: str, images=None, font_size=15)->bytes:
     buffer = BytesIO()
     image.save(buffer, format="PNG")
     return buffer.getvalue()
+
+
+async def read_pil_img(path: pathlib.Path) -> Image.Image:
+    """
+    :param path: 图片路径
+    :return: pil 图片
+    """
+    async with aiofiles.open(path, "rb") as fp:
+        file_bytes = await fp.read()
+        bytes_io_tmp = BytesIO()
+        bytes_io_tmp.write(file_bytes)
+        return Image.open(bytes_io_tmp)

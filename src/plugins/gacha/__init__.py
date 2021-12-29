@@ -1,5 +1,5 @@
 import nonebot
-from nonebot import on_command, on_request, on_notice, get_driver
+from nonebot import on_regex, on_request, on_notice, get_driver
 from nonebot.adapters.cqhttp import MessageSegment, Message, GroupMessageEvent, Bot
 from nonebot.rule import keyword, startswith, to_me, regex
 from nonebot.typing import T_State
@@ -12,10 +12,8 @@ from .database import Pool
 export = export()
 export.Pool = Pool
 
-gacha_cmd = on_command(
-    cmd="十连",
-    rule=regex("^十连$"),
-    permission=GROUP_OWNER | GROUP_ADMIN,
+gacha_cmd = on_regex(
+    pattern="(抽卡\\d+次)|(寻访\\d+次)|(抽\\d+次)|(\\d+次寻访)|(\\d+连寻访)|(\\d+连抽)|(\\d+连)|(\\d+抽)",
     priority=5,
     block=True
 )

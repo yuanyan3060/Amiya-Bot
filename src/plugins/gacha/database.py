@@ -4,12 +4,10 @@ from typing import List, Dict
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
-
 sqlite_db = peewee.SqliteDatabase(pathConfig.database / 'Pool.db',
                                   pragmas={
                                       'timeout': 30
-                                  },
-                                  check_same_thread=False)
+                                  })
 
 
 class Pool(peewee.Model):

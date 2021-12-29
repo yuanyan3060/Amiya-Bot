@@ -1,5 +1,5 @@
 import nonebot
-from nonebot import on_command, on_request, on_notice, get_driver
+from nonebot import on_command, on_request, on_notice, get_driver, on_regex
 from nonebot.adapters.cqhttp import MessageSegment, Message, GroupMessageEvent, Bot
 from nonebot.rule import keyword, startswith, to_me, regex
 from nonebot.typing import T_State
